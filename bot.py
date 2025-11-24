@@ -79,7 +79,6 @@ async def ensure_voice(guild: discord.Guild):
         )
 
 @bot.command(help="Test: make the bot join the Ayyappa Radio channel")
-@is_music_controller()
 async def join(ctx: commands.Context):
     guild = ctx.guild
     try:
@@ -87,6 +86,7 @@ async def join(ctx: commands.Context):
         await ctx.send("✅ Joined voice channel.")
     except RuntimeError as e:
         await ctx.send(str(e))
+
 
 @bot.command(help="Test: make the bot leave the voice channel")
 @is_music_controller()
@@ -96,6 +96,10 @@ async def leave(ctx: commands.Context):
         await ctx.send("👋 Left voice channel.")
     else:
         await ctx.send("I'm not in a voice channel.")
+
+@bot.command()
+async def ping(ctx):
+    await ctx.send("Pong from XEO-24/7 ✅")
 
 bot.run(TOKEN)
 
