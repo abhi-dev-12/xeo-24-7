@@ -285,10 +285,7 @@ async def volume(ctx: commands.Context, vol: int):
 
 # ================== RUN BOT ================================
 
-from keep_alive import keep_alive
-
-keep_alive()
-bot.run(os.getenv("TOKEN"))
+bot.run(TOKEN)
 
 
 
