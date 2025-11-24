@@ -8,22 +8,16 @@ import pytz
 import yt_dlp
 
 # ================== CONFIG – EDIT ONLY THIS PART ====================
+TOKEN = os.getenv("TOKEN")
 
-TOKEN = os.getenv("TOKEN")  
-# ================== CONFIG – EDIT THESE ====================
+GUILD_ID = int(os.getenv("GUILD_ID"))
 
+VOICE_CHANNEL_ID = int(os.getenv("VC_ID"))   # NEW: using ID
+TEXT_CHANNEL_ID = int(os.getenv("TC_ID"))    # NEW: using ID
 
+MUSIC_CONTROLLER_ROLE = "Music Controller"
 
-GUILD_ID = int(os.getenv("GUILD_ID"))     # your server ID (right-click server icon → Copy ID)
-VOICE_CHANNEL_NAME = os.getenv("VC")   # exact voice channel name
-TEXT_CHANNEL_NAME = os.getenv("TC")   # exact text channel for messages
-
-MUSIC_CONTROLLER_ROLE = "Music Controller🎶"
-
-# Your main 24x7 playlist (Malayalam Ayyappan songs)
 YOUTUBE_PLAYLIST_URL = os.getenv("YT")
-
-# Single Harivarasanam video URL (for nightly play if you want)
 HARIVARASANAM_URL = os.getenv("YT_2")
 
 # Harivarasanam time (IST)
@@ -59,11 +53,15 @@ def is_music_controller():
 async def on_ready():
     print(f"Logged in as {bot.user} ({bot.user.id})")
 
+import asyncio
+
 async def ensure_voice(guild: discord.Guild):
+    """Ensure the bot is connected to the configured voice channel."""
     global voice_client
-    vc = discord.utils.get(guild.voice_channels, name=VOICE_CHANNEL_NAME)
-    if vc is None:
-        raise RuntimeError(f"Voice channel '{VOICE_CHANNEL_NAME}' not found")
+
+    vc = guild.get_channel(VOICE_CHANNEL_ID)
+    if vc is None or not isinstance(vc, discord.VoiceChannel):
+        raise RuntimeError(f"❌ Voice channel with ID {VOICE_CHANNEL_ID} not found in this guild.")
 
     try:
         if guild.voice_client and guild.voice_client.is_connected():
@@ -74,9 +72,17 @@ async def ensure_voice(guild: discord.Guild):
             voice_client = await vc.connect(timeout=30)
     except asyncio.TimeoutError:
         raise RuntimeError(
-            "⚠️ Timed out connecting to the voice channel. "
+            "⚠️ Timed out connecting to the voice channel.\n"
             "This is usually a host/network issue."
         )
+    except discord.Forbidden:
+        raise RuntimeError(
+            "🚫 I don't have permission to join that voice channel.\n"
+            "Please give me **Connect** and **Speak** permissions there."
+        )
+    except discord.HTTPException as e:
+        raise RuntimeError(f"❗ Failed to connect to voice: `{e}`")
+
 
 @bot.command(help="Test: make the bot join the Ayyappa Radio channel")
 async def join(ctx: commands.Context):
