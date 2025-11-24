@@ -40,7 +40,8 @@ intents.guilds = True
 intents.voice_states = True
 intents.members = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="&", intents=intents)
+
 voice_client: discord.VoiceClient | None = None
 
 def is_music_controller():
