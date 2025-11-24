@@ -14,11 +14,11 @@ TOKEN = os.getenv("TOKEN")
 
 
 
-GUILD_ID = os.getenv("GUILD_ID")       # your server ID (right-click server icon → Copy ID)
+GUILD_ID = int(os.getenv("GUILD_ID"))     # your server ID (right-click server icon → Copy ID)
 VOICE_CHANNEL_NAME = os.getenv("VC")   # exact voice channel name
 TEXT_CHANNEL_NAME = os.getenv("TC")   # exact text channel for messages
 
-MUSIC_CONTROLLER_ROLE = "Music Controller"
+MUSIC_CONTROLLER_ROLE = "Music Controller🎶"
 
 # Your main 24x7 playlist (Malayalam Ayyappan songs)
 YOUTUBE_PLAYLIST_URL = os.getenv("YT")
