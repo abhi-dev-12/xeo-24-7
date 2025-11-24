@@ -14,17 +14,17 @@ TOKEN = os.getenv("TOKEN")
 
 
 
-GUILD_ID = 809979192509988894        # your server ID (right-click server icon → Copy ID)
-VOICE_CHANNEL_NAME = "Ayyapan Radio" # exact voice channel name
-TEXT_CHANNEL_NAME = "ayyappa-text"   # exact text channel for messages
+GUILD_ID = os.getenv("GUILD_ID")       # your server ID (right-click server icon → Copy ID)
+VOICE_CHANNEL_NAME = os.getenv("VC")   # exact voice channel name
+TEXT_CHANNEL_NAME = os.getenv("TC")   # exact text channel for messages
 
 MUSIC_CONTROLLER_ROLE = "Music Controller"
 
 # Your main 24x7 playlist (Malayalam Ayyappan songs)
-YOUTUBE_PLAYLIST_URL = "https://music.youtube.com/watch?v=M3uDuFPUf60&si=0xe_kkYbpGfmb2Uf"
+YOUTUBE_PLAYLIST_URL = os.getenv("YT")
 
 # Single Harivarasanam video URL (for nightly play if you want)
-HARIVARASANAM_URL = "https://www.youtube.com/watch?v=BOjJGALm2kQ&list=RDBOjJGALm2kQ&start_radio=1"
+HARIVARASANAM_URL = os.getenv("YT_2")
 
 # Harivarasanam time (IST)
 HARIVARASANAM_HOUR = 21   # 9 PM
