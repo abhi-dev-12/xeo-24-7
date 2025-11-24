@@ -70,6 +70,11 @@ def ytdlp_source(url: str):
         "quiet": True,
         "noplaylist": True,
         "default_search": "auto",
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["default"]
+            }
+        },
     }
     with yt_dlp.YoutubeDL(ytdlp_opts) as ydl:
         info = ydl.extract_info(url, download=False)
@@ -77,8 +82,9 @@ def ytdlp_source(url: str):
         return FFmpegPCMAudio(
             audio_url,
             before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-            options="-vn"
+            options="-vn",
         )
+
 
 
 def get_ist_now():
@@ -152,7 +158,7 @@ async def start_main_loop(guild: discord.Guild):
 
 
 async def load_playlist():
-    """Load all video URLs from the YouTube playlist into song_queue."""
+    """Load all video URLs from the YouTube playlist into song_queue, skipping blocked ones."""
     global song_queue, current_index
 
     ytdlp_opts = {
@@ -160,20 +166,29 @@ async def load_playlist():
         "quiet": True,
         "skip_download": True,
         "yes_playlist": True,
+        "ignoreerrors": True,  # <-- skip entries that error (age-restricted, etc.)
+        "extractor_args": {    # <-- avoid JS runtime issues on Railway
+            "youtube": {
+                "player_client": ["default"]
+            }
+        },
     }
 
     with yt_dlp.YoutubeDL(ytdlp_opts) as ydl:
         info = ydl.extract_info(YOUTUBE_PLAYLIST_URL, download=False)
-        entries = info.get("entries", [])
+        entries = info.get("entries", []) or []
         urls = []
+
         for entry in entries:
-            # for flat extract we need to build full URL
+            if not entry:
+                continue  # failed / blocked entry
             video_id = entry.get("id")
             if video_id:
                 urls.append(f"https://www.youtube.com/watch?v={video_id}")
 
     song_queue = urls
     current_index = 0
+
 
 
 async def play_harivarasanam(guild: discord.Guild):
