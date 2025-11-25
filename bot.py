@@ -9,17 +9,29 @@ import yt_dlp
 import pytz
 from yt_dlp.utils import DownloadError, ExtractorError
 from imageio_ffmpeg import get_ffmpeg_exe
+import ctypes.util
 import discord.opus
+
 
 # ----- Load Opus (required for voice) -----
 if not discord.opus.is_loaded():
-    for name in ("libopus.so.0", "libopus.so", "opus"):
+    lib = ctypes.util.find_library("opus")
+    if lib:
         try:
-            discord.opus.load_opus(name)
-            print(f"[opus] Loaded Opus library: {name}")
-            break
-        except OSError:
-            continue
+            discord.opus.load_opus(lib)
+            print(f"[opus] Loaded Opus library via find_library: {lib}")
+        except OSError as e:
+            print(f"[opus] Failed to load Opus from {lib}: {e}")
+    else:
+        # Fallback to common names
+        for name in ("libopus.so.0", "libopus.so", "opus"):
+            try:
+                discord.opus.load_opus(name)
+                print(f"[opus] Loaded Opus library by name: {name}")
+                break
+            except OSError:
+                continue
+
     if not discord.opus.is_loaded():
         print("[opus] WARNING: Could not load Opus library; voice will not work.")
 # -----------------------------------------
