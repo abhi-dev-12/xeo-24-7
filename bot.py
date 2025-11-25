@@ -7,12 +7,11 @@ from discord.ext import commands, tasks
 from discord import FFmpegPCMAudio
 import yt_dlp
 import pytz
-import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
 from imageio_ffmpeg import get_ffmpeg_exe
 import discord.opus
 
-# Try to load Opus library explicitly
+# ----- Load Opus (required for voice) -----
 if not discord.opus.is_loaded():
     for name in ("libopus.so.0", "libopus.so", "opus"):
         try:
@@ -23,7 +22,8 @@ if not discord.opus.is_loaded():
             continue
     if not discord.opus.is_loaded():
         print("[opus] WARNING: Could not load Opus library; voice will not work.")
-# ================== CONFIG FROM ENV ====================
+# -----------------------------------------
+
 
 TOKEN = os.getenv("TOKEN")
 
