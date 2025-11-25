@@ -12,29 +12,8 @@ from imageio_ffmpeg import get_ffmpeg_exe
 import ctypes.util
 import discord.opus
 
-
-# ----- Load Opus (required for voice) -----
 if not discord.opus.is_loaded():
-    lib = ctypes.util.find_library("opus")
-    if lib:
-        try:
-            discord.opus.load_opus(lib)
-            print(f"[opus] Loaded Opus library via find_library: {lib}")
-        except OSError as e:
-            print(f"[opus] Failed to load Opus from {lib}: {e}")
-    else:
-        # Fallback to common names
-        for name in ("libopus.so.0", "libopus.so", "opus"):
-            try:
-                discord.opus.load_opus(name)
-                print(f"[opus] Loaded Opus library by name: {name}")
-                break
-            except OSError:
-                continue
-
-    if not discord.opus.is_loaded():
-        print("[opus] WARNING: Could not load Opus library; voice will not work.")
-# -----------------------------------------
+    discord.opus.load_opus("libopus.so.0")  # this usually works on Debian/Ubuntu
 
 
 TOKEN = os.getenv("TOKEN")
