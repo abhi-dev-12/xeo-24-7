@@ -10,7 +10,19 @@ import pytz
 import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
 from imageio_ffmpeg import get_ffmpeg_exe
+import discord.opus
 
+# Try to load Opus library explicitly
+if not discord.opus.is_loaded():
+    for name in ("libopus.so.0", "libopus.so", "opus"):
+        try:
+            discord.opus.load_opus(name)
+            print(f"[opus] Loaded Opus library: {name}")
+            break
+        except OSError:
+            continue
+    if not discord.opus.is_loaded():
+        print("[opus] WARNING: Could not load Opus library; voice will not work.")
 # ================== CONFIG FROM ENV ====================
 
 TOKEN = os.getenv("TOKEN")
