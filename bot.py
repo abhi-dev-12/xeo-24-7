@@ -212,7 +212,12 @@ async def start_main_loop(guild: discord.Guild):
         await load_playlist()
         text_ch = guild.get_channel(TEXT_CHANNEL_ID)
         if isinstance(text_ch, discord.TextChannel):
-            await text_ch.send(f"📜 Loaded {len(song_queue)} Ayyappa songs into the queue.")
+            try:
+                await text_ch.send(f"📜 Loaded {len(song_queue)} Ayyappa songs into the queue.")
+            except discord.Forbidden:
+                # No permission to send here – ignore and continue
+                pass
+
 
     if not song_queue:
         return
