@@ -7,6 +7,8 @@ from discord.ext import commands, tasks
 from discord import FFmpegPCMAudio
 import yt_dlp
 import pytz
+import yt_dlp
+from yt_dlp.utils import DownloadError, ExtractorError
 
 # ================== CONFIG FROM ENV ====================
 
@@ -59,8 +61,8 @@ def is_music_controller():
     return commands.check(predicate)
 
 
-def ytdlp_source(url: str) -> FFmpegPCMAudio:
-    """Return FFmpeg audio source for a given YouTube URL using yt-dlp."""
+def ytdlp_source(url: str) -> FFmpegPCMAudio | None:
+    """Return FFmpeg audio source for a given YouTube URL using yt-dlp, or None if blocked."""
     ytdlp_opts = {
         "format": "bestaudio/best",
         "quiet": True,
@@ -73,7 +75,12 @@ def ytdlp_source(url: str) -> FFmpegPCMAudio:
         },
     }
     with yt_dlp.YoutubeDL(ytdlp_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
+        try:
+            info = ydl.extract_info(url, download=False)
+        except (DownloadError, ExtractorError):
+            # age-restricted / blocked / needs login
+            return None
+
         audio_url = info["url"]
         return FFmpegPCMAudio(
             audio_url,
@@ -171,6 +178,15 @@ async def play_song(guild: discord.Guild, url: str):
 
     source = await loop.run_in_executor(None, _make_source)
 
+    if source is None:
+        # blocked / age-restricted video – skip to next
+        text_ch = guild.get_channel(TEXT_CHANNEL_ID)
+        if isinstance(text_ch, discord.TextChannel):
+            await text_ch.send("⚠️ Skipping a blocked/age-restricted video (needs sign-in).")
+        # behave as if the track ended, so we move to the next one
+        await on_track_end(guild, None)
+        return
+
     def after_callback(error: Exception | None):
         fut = asyncio.run_coroutine_threadsafe(on_track_end(guild, error), bot.loop)
         try:
@@ -179,6 +195,7 @@ async def play_song(guild: discord.Guild, url: str):
             pass
 
     voice_client.play(source, after=after_callback)
+
 
 
 async def on_track_end(guild: discord.Guild, error: Exception | None):
