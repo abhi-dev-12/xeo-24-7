@@ -12,8 +12,8 @@ from imageio_ffmpeg import get_ffmpeg_exe
 import ctypes.util
 import discord.opus
 
-if not discord.opus.is_loaded():
-    discord.opus.load_opus("libopus.so.0")  # this usually works on Debian/Ubuntu
+# if not discord.opus.is_loaded():
+#     discord.opus.load_opus("libopus.so.0")  # this usually works on Debian/Ubuntu
 
 
 TOKEN = os.getenv("TOKEN")
