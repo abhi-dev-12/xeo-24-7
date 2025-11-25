@@ -9,6 +9,7 @@ import yt_dlp
 import pytz
 import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
+from imageio_ffmpeg import get_ffmpeg_exe
 
 # ================== CONFIG FROM ENV ====================
 
@@ -84,9 +85,11 @@ def ytdlp_source(url: str) -> FFmpegPCMAudio | None:
         audio_url = info["url"]
         return FFmpegPCMAudio(
             audio_url,
+            executable=get_ffmpeg_exe(),   # 👈 use bundled ffmpeg
             before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
             options="-vn",
         )
+
 
 
 async def load_playlist():
