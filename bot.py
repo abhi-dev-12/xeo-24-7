@@ -139,18 +139,28 @@ async def ensure_voice(guild: discord.Guild):
     """Ensure the bot is connected to the configured voice channel."""
     global voice_client
 
-    vc = guild.get_channel(VOICE_CHANNEL_ID)
-    if vc is None or not isinstance(vc, discord.VoiceChannel):
+    vc_target = guild.get_channel(VOICE_CHANNEL_ID)
+    if vc_target is None or not isinstance(vc_target, discord.VoiceChannel):
         raise RuntimeError(f"❌ Voice channel with ID {VOICE_CHANNEL_ID} not found in this guild.")
 
+    existing = guild.voice_client
+
+    # If already connected to the right channel, just reuse it
+    if existing and existing.is_connected():
+        voice_client = existing
+        if existing.channel != vc_target:
+            await existing.move_to(vc_target)
+        return
+
+    # If there's a half-broken client, disconnect it first
+    if existing and not existing.is_connected():
+        try:
+            await existing.disconnect(force=True)
+        except Exception:
+            pass
+
     try:
-        if guild.voice_client and guild.voice_client.is_connected():
-            voice_client = guild.voice_client
-            if voice_client.channel != vc:
-                await voice_client.move_to(vc)
-        else:
-            # Discord voice can be flaky; discord.py will retry internally.
-            voice_client = await vc.connect(timeout=30)
+        voice_client = await vc_target.connect(timeout=30)
     except asyncio.TimeoutError:
         raise RuntimeError(
             "⚠️ Timed out connecting to the voice channel.\n"
@@ -162,10 +172,11 @@ async def ensure_voice(guild: discord.Guild):
             "Please give me **Connect** and **Speak** permissions there."
         )
     except discord.ClientException as e:
-        # e.g. Already connected
+        # Already connected, wrong state, etc.
         raise RuntimeError(f"❗ Voice client exception: {e}")
     except discord.HTTPException as e:
         raise RuntimeError(f"❗ Failed to connect to voice: `{e}`")
+
 
 
 async def play_song(guild: discord.Guild, url: str):
