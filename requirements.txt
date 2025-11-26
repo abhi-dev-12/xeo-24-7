@@ -2,4 +2,5 @@ git+https://github.com/Rapptz/discord.py@master
 yt-dlp
 PyNaCl
 pytz
+python-dotenv
 aiohttp
