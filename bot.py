@@ -8,7 +8,7 @@ from discord import FFmpegPCMAudio
 import yt_dlp
 import pytz
 from yt_dlp.utils import DownloadError, ExtractorError
-from imageio_ffmpeg import get_ffmpeg_exe
+
 import ctypes.util
 import discord.opus
 
@@ -37,11 +37,10 @@ IST = pytz.timezone("Asia/Kolkata")
 
 intents = discord.Intents.default()
 intents.message_content = True
-intents.members = True
-intents.guilds = True
-intents.voice_states = True
+intents.voice_states = True  # IMPORTANT
 
 bot = commands.Bot(command_prefix="&", intents=intents)
+
 
 song_queue: list[str] = []
 current_index: int = 0
@@ -88,7 +87,7 @@ def ytdlp_source(url: str) -> FFmpegPCMAudio | None:
         audio_url = info["url"]
         return FFmpegPCMAudio(
             audio_url,
-            executable=get_ffmpeg_exe(),   # 👈 use bundled ffmpeg
+            # executable=get_ffmpeg_exe(),   # 👈 use bundled ffmpeg
             before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
             options="-vn",
         )

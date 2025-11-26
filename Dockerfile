@@ -1,18 +1,20 @@
+# Dockerfile — place at repo root
 FROM python:3.11-slim
 
-# Install system dependencies: ffmpeg + opus
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ffmpeg libopus0 && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends \
+      ffmpeg \
+      libopus0 \
+      libsndfile1 \
+      && rm -rf /var/lib/apt/lists/*
 
-# Create app folder
 WORKDIR /app
-
-# Copy your code into the container
 COPY . /app
 
-# Install Python dependencies
+# Upgrade pip and install deps
+RUN python -m pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Default command: run your bot
+# Run the bot
 CMD ["python", "bot.py"]
